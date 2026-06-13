@@ -1,6 +1,6 @@
 const fileInput = document.getElementById("csvFile");
 
-let ocChart = null;
+let lightCurveChart = null;
 let trendChart = null;
 
 fileInput.addEventListener("change", function (event) {
@@ -11,43 +11,49 @@ fileInput.addEventListener("change", function (event) {
         header: true,
         dynamicTyping: true,
         skipEmptyLines: true,
-        delimiter: "",  // auto-detects CSV or space/tab separated TXT
+        delimiter: "",
+        transformHeader: function(header) {
+            return header.replace(/"/g, "").trim();
+        },
 
         complete: function(results) {
 
             const data = results.data;
 
+            console.log("RAW PARSED DATA:", data); // IMPORTANT DEBUG
+
             const times = [];
-            const dmagValues = [];
+            const dmag = [];
             const errors = [];
-            const airmass = [];
 
             for (let i = 0; i < data.length; i++) {
 
                 const row = data[i];
 
-                if (
-                    row["BJD_TDB"] === undefined ||
-                    row["Dmag"] === undefined
-                ) continue;
+                if (!row.BJD_TDB || !row.Dmag) continue;
 
-                times.push(Number(row["BJD_TDB"]));
-                dmagValues.push(Number(row["Dmag"]));
+                const t = Number(row.BJD_TDB);
+                const m = Number(row.Dmag);
 
-                if (row["Error"] !== undefined) {
-                    errors.push(Number(row["Error"]));
-                }
+                if (isNaN(t) || isNaN(m)) continue;
 
-                if (row["airmass"] !== undefined) {
-                    airmass.push(Number(row["airmass"]));
+                times.push(t);
+                dmag.push(m);
+
+                if (row.Error !== undefined) {
+                    const e = Number(row.Error);
+                    if (!isNaN(e)) errors.push(e);
                 }
             }
 
-            generateStats(dmagValues, errors);
+            if (times.length === 0) {
+                alert("No valid data found. Check file format.");
+                return;
+            }
 
-            drawLightCurve(times, dmagValues);
-
-            drawTrendChart(times, dmagValues);
+            generateStats(dmag, errors);
+            drawLightCurve(times, dmag);
+            drawTrend(times, dmag);
         }
     });
 
@@ -63,30 +69,28 @@ function generateStats(dmag, errors) {
         a + Math.pow(b - mean, 2), 0
     ) / n;
 
-    const stdDev = Math.sqrt(variance);
+    const std = Math.sqrt(variance);
 
-    const avgError = errors.length > 0
+    const avgError = errors.length
         ? errors.reduce((a,b) => a + b, 0) / errors.length
         : 0;
 
-    const noiseScore = Math.min(100, Math.max(0, 100 - stdDev * 10000));
+    const qualityScore = Math.max(0, 100 - std * 10000);
 
-    const quality =
-        noiseScore > 85 ? "A (Excellent)" :
-        noiseScore > 70 ? "B (Good)" :
-        noiseScore > 50 ? "C (Moderate)" :
-        noiseScore > 30 ? "D (Low Quality)" :
-        "F (Poor)";
+    let grade = "F";
+    if (qualityScore > 85) grade = "A";
+    else if (qualityScore > 70) grade = "B";
+    else if (qualityScore > 50) grade = "C";
+    else if (qualityScore > 30) grade = "D";
 
     document.getElementById("stats").innerHTML = `
-        <h3>Observation Analysis</h3>
-
-        <strong>Observations:</strong> ${n}<br>
-        <strong>Mean Dmag:</strong> ${mean.toFixed(6)}<br>
-        <strong>Std Deviation:</strong> ${stdDev.toFixed(6)}<br>
-        <strong>Avg Error:</strong> ${avgError.toFixed(6)}<br>
-        <strong>Noise Score:</strong> ${noiseScore.toFixed(2)}<br>
-        <strong>Quality Grade:</strong> ${quality}
+        <h3>Observation Summary</h3>
+        <b>Observations:</b> ${n}<br>
+        <b>Mean Dmag:</b> ${mean.toFixed(6)}<br>
+        <b>Std Dev:</b> ${std.toFixed(6)}<br>
+        <b>Avg Error:</b> ${avgError.toFixed(6)}<br>
+        <b>Quality Score:</b> ${qualityScore.toFixed(2)}<br>
+        <b>Grade:</b> ${grade}
     `;
 }
 
@@ -94,9 +98,9 @@ function drawLightCurve(times, dmag) {
 
     const ctx = document.getElementById("ocChart");
 
-    if (ocChart) ocChart.destroy();
+    if (lightCurveChart) lightCurveChart.destroy();
 
-    ocChart = new Chart(ctx, {
+    lightCurveChart = new Chart(ctx, {
         type: "scatter",
         data: {
             datasets: [{
@@ -113,7 +117,7 @@ function drawLightCurve(times, dmag) {
             plugins: {
                 title: {
                     display: true,
-                    text: "Exoplanet Light Curve"
+                    text: "Exoplanet Light Curve (BJD_TDB vs Dmag)"
                 }
             },
             scales: {
@@ -134,7 +138,7 @@ function drawLightCurve(times, dmag) {
     });
 }
 
-function drawTrendChart(times, dmag) {
+function drawTrend(times, dmag) {
 
     const ctx = document.getElementById("trendChart");
 
