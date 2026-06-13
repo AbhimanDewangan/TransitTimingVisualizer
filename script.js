@@ -85,7 +85,7 @@ function drawOCChart(labels, data) {
 
         data: {
             datasets: [{
-                label: "Observed - Calculated",
+                label: "Differential Magnitude (Dmag)",
                 data: labels.map((label, index) => ({
                     x: label,
                     y: data[index]
@@ -99,7 +99,7 @@ function drawOCChart(labels, data) {
             plugins: {
                 title: {
                     display: true,
-                    text: "O-C Diagram"
+                    text: "Exoplanet Light Curve"
                 }
             },
 
@@ -107,14 +107,14 @@ function drawOCChart(labels, data) {
                 x: {
                     title: {
                         display: true,
-                        text: "Transit Number"
+                        text: "BJD_TDB Time"
                     }
                 },
 
                 y: {
                     title: {
                         display: true,
-                        text: "Timing Difference"
+                        text: "Differential Magnitude"
                     }
                 }
             }
