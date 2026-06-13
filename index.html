@@ -1,1 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Transit Timing Anomaly Visualizer</title>
 
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <div class="container">
+
+        <h1>Transit Timing Anomaly Visualizer</h1>
+
+        <p>
+            Upload a CSV containing:
+            Transit Number, Predicted Time, Observed Time
+        </p>
+
+        <input type="file" id="csvFile">
+
+        <div class="stats" id="stats"></div>
+
+        <canvas id="ocChart"></canvas>
+
+        <canvas id="trendChart"></canvas>
+
+    </div>
+
+    <script src="script.js"></script>
+
+</body>
+</html>
