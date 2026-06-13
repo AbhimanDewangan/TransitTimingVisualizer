@@ -20,7 +20,7 @@ fileInput.addEventListener("change", function (event) {
 
             const data = results.data;
 
-            console.log("RAW PARSED DATA:", data); // IMPORTANT DEBUG
+            console.log("Parsed Data:", data);
 
             const times = [];
             const dmag = [];
@@ -47,7 +47,7 @@ fileInput.addEventListener("change", function (event) {
             }
 
             if (times.length === 0) {
-                alert("No valid data found. Check file format.");
+                alert("No valid data found. Please check file format.");
                 return;
             }
 
@@ -100,24 +100,55 @@ function drawLightCurve(times, dmag) {
 
     if (lightCurveChart) lightCurveChart.destroy();
 
+    // smoothing (moving average)
+    const smooth = [];
+    const windowSize = 5;
+
+    for (let i = 0; i < dmag.length; i++) {
+
+        let sum = 0;
+        let count = 0;
+
+        for (let j = i - windowSize; j <= i + windowSize; j++) {
+            if (j >= 0 && j < dmag.length) {
+                sum += dmag[j];
+                count++;
+            }
+        }
+
+        smooth.push(sum / count);
+    }
+
     lightCurveChart = new Chart(ctx, {
         type: "scatter",
         data: {
-            datasets: [{
-                label: "Light Curve (Dmag)",
-                data: times.map((t, i) => ({
-                    x: t,
-                    y: dmag[i]
-                })),
-                pointRadius: 2
-            }]
+            datasets: [
+                {
+                    label: "Raw Light Curve",
+                    data: times.map((t, i) => ({
+                        x: t,
+                        y: dmag[i]
+                    })),
+                    pointRadius: 2
+                },
+                {
+                    label: "Smoothed Curve",
+                    data: times.map((t, i) => ({
+                        x: t,
+                        y: smooth[i]
+                    })),
+                    type: "line",
+                    borderWidth: 2,
+                    pointRadius: 0
+                }
+            ]
         },
         options: {
             responsive: true,
             plugins: {
                 title: {
                     display: true,
-                    text: "Exoplanet Light Curve (BJD_TDB vs Dmag)"
+                    text: "Exoplanet Light Curve (Raw + Smoothed)"
                 }
             },
             scales: {
@@ -167,7 +198,7 @@ function drawTrend(times, dmag) {
                 x: {
                     title: {
                         display: true,
-                        text: "Time (BJD_TDB)"
+                        text: "BJD_TDB Time"
                     }
                 },
                 y: {
