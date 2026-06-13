@@ -11,6 +11,7 @@ fileInput.addEventListener("change", function (event) {
         header: true,
         dynamicTyping: true,
         skipEmptyLines: true,
+        delimiter: "",  // auto-detects CSV or space/tab separated TXT
 
         complete: function(results) {
 
