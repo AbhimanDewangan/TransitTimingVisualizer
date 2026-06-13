@@ -18,19 +18,13 @@ fileInput.addEventListener("change", function (event) {
 
             );
 
-            const transitNumbers = [];
-            const deviations = [];
+            const times = [];
+            const dmagValues = [];
 
             data.forEach(row => {
 
-                const transit = row["Transit Number"];
-                const predicted = row["Predicted Time"];
-                const observed = row["Observed Time"];
-
-                const oc = observed - predicted;
-
-                transitNumbers.push(transit);
-                deviations.push(oc);
+                times.push(Number(row["BJD_TBD"]));
+                dmagValues.push(Number(row["Dmag"]));
 
             });
 
