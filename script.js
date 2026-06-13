@@ -28,11 +28,11 @@ fileInput.addEventListener("change", function (event) {
 
             });
 
-            generateStats(deviations);
+            generateStats(dmagValues);
 
-            drawOCChart(transitNumbers, deviations);
+            drawOCChart(times, dmagValues);
 
-            drawTrendChart(transitNumbers, deviations);
+            drawTrendChart(times, dmagValues);
         }
     });
 
