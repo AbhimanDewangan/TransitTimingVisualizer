@@ -13,10 +13,9 @@ fileInput.addEventListener("change", function (event) {
         complete: function(results) {
 
             const data = results.data.filter(
-                row =>
-                    row["Transit Number"] !== undefined &&
-                    row["Predicted Time"] !== undefined &&
-                    row["Observed Time"] !== undefined
+                row["BJD_TDB"] !== undefined &&
+                row["Dmag"] !== undefined
+
             );
 
             const transitNumbers = [];
