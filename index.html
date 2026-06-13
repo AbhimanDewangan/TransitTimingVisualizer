@@ -1,35 +1,47 @@
 <!DOCTYPE html>
-<html>
-<head>
-    <title>Transit Timing Anomaly Visualizer</title>
+<html lang="en">
 
+<head>
+    <meta charset="UTF-8">
+    <title>Exoplanet Observation Analyzer</title>
+
+    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- PapaParse -->
     <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 
-    <link rel="stylesheet" href="style.css">
+    <!-- Your CSS -->
+    <link rel="stylesheet" href="style.css?v=2">
 </head>
 
 <body>
 
     <div class="container">
 
-        <h1>Transit Timing Anomaly Visualizer</h1>
+        <h1>Exoplanet Observation Analyzer</h1>
 
-        <p>
-            Upload an Exoplanet Observation File (Dmag CSV)
-        </p>
+        <p>Upload Exoplanet Photometry File (.txt / .csv)</p>
 
-        <input type="file" id="csvFile">
+        <!-- FILE UPLOAD (IMPORTANT ID MUST MATCH JS) -->
+        <input type="file" id="csvFile" accept=".csv,.txt,.dmag">
 
-        <div class="stats" id="stats"></div>
+        <!-- STATS OUTPUT -->
+        <div class="stats" id="stats">
+            Awaiting data...
+        </div>
 
+        <!-- CHART 1: LIGHT CURVE -->
         <canvas id="ocChart"></canvas>
 
+        <!-- CHART 2: TREND -->
         <canvas id="trendChart"></canvas>
 
     </div>
 
+    <!-- MAIN SCRIPT -->
     <script src="script.js"></script>
 
 </body>
+
 </html>
